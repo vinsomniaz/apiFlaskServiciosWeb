@@ -1,0 +1,107 @@
+1. pip install -r requirements.txt
+
+-------------------------------------
+
+2. python app.py
+
+-------------------------------------
+
+3. python -m workers.email_worker
+
+-------------------------------------
+
+4. para el register: POST
+http://127.0.0.1:5007/api/v1/auth/register
+
+{
+  "email": "abi@gmail.com",
+  "password": "123456",
+  "full_name": "Abi"
+}
+
+-------------------------------------
+
+5. para el login: POST
+http://127.0.0.1:5007/api/v1/auth/login
+
+{
+  "email": "test@correo.com",
+  "password": "123456"
+}
+
+(se copia data.access_token)
+
+-------------------------------------
+
+6. para transacción: POST
+http://127.0.0.1:5007/api/v1/transactions
+
+En Authorization
+Type: Bearer Token
+Token: pega el access_token que copiaste
+
+ejemplo transacción normal:
+{
+  "id_transaccion": "TX-1001",
+  "monto": 250.75,
+  "moneda": "PEN",
+  "origen": { "tipo": "cuenta", "id": "CTA-0001" },
+  "destino": { "tipo": "cuenta", "id": "CTA-0002" },
+  "status": "OK"
+}
+
+ejemplo failed (fondos insuficientes):
+{
+  "id_transaccion": "TX-002",
+  "monto": 99.90,
+  "moneda": "PEN",
+  "origen": { "tipo": "cuenta", "id": "CT-1" },
+  "destino": { "tipo": "cuenta", "id": "CT-2" },
+  "status": "FAILED",
+  "error_code": "INSUFFICIENT_FUNDS",
+  "error_message": "Fondos insuficientes"
+}
+
+ejemplo failed (cuenta de destino inválida):
+{
+  "id_transaccion": "TX-1003",
+  "monto": 45.00,
+  "moneda": "USD",
+  "origen": { "tipo": "tarjeta", "id": "CARD-411111******1111" },
+  "destino": { "tipo": "cuenta", "id": "CTA-XXXX" },
+  "status": "FAILED",
+  "error_code": "INVALID_DESTINATION",
+  "error_message": "La cuenta destino no existe"
+}
+
+ejemplo failed (servidor caído):
+{
+  "id_transaccion": "TX-1005",
+  "monto": 320.00,
+  "moneda": "PEN",
+  "origen": { "tipo": "cuenta", "id": "CTA-0101" },
+  "destino": { "tipo": "cuenta", "id": "CTA-0202" },
+  "status": "FAILED",
+  "error_code": "UPSTREAM_TIMEOUT",
+  "error_message": "Tiempo de espera agotado al validar destino"
+}
+
+
+-------------------------------------
+
+7. ver cola de emails: GET
+http://127.0.0.1:5007/api/v1/notifications/pending (pendientes)
+http://127.0.0.1:5007/api/v1/notifications (todas)
+
+En Authorization
+Type: Bearer Token
+Token: pega el access_token que copiaste
+
+-------------------------------------
+
+8. ver transacción específica: GET
+http://127.0.0.1:5007/api/v1/transactions/TX-1005 (variable)
+
+En Authorization
+Type: Bearer Token
+Token: pega el access_token que copiaste
